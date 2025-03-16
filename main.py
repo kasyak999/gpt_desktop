@@ -1,5 +1,6 @@
 import re
 import os
+import sys
 import tkinter
 from tkinter import ttk
 from datetime import datetime
@@ -11,7 +12,9 @@ MODEL_NAME = 'Meta-Llama-3-8B-Instruct.Q4_0.gguf'
 MODEL_DIR = f'/home/{os.getlogin()}/gpt_desktop/Models'
 model = GPT4All(
     model_name=MODEL_NAME, model_path=MODEL_DIR, device='cpu', verbose=False)
-ROLE_PROMPT = "Ты Python-разработчик. Отвечай только на русском языке"
+ROLE_PROMPT = os.getenv(
+    "ROLE_PROMPT", '')
+RADIO_VALUE = os.getenv("RADIO_VALUE", "option1")
 
 
 class MyApplication(ctk.CTk):
@@ -19,19 +22,32 @@ class MyApplication(ctk.CTk):
         super().__init__(*args, **kwargs)
         self.geometry("1020x670")
         self.title('Бот GPT')
+        self.protocol("WM_DELETE_WINDOW", self.on_closing)
         default_font = ("Arial", 16)
 
         # Создаем поле ввода текста
         self.entry = ctk.CTkTextbox(self, height=250, font=default_font)
         self.entry.pack(fill='x', padx=(10, 10), pady=(10, 0))
 
+        frame = ctk.CTkFrame(self)  # Контейнер для кнопок
+        frame.pack(pady=10)  # Размещаем контейнер
+        frame.pack(fill='x', padx=(10, 10), pady=(10, 0))
+
         # Создаем кнопку "Отправить"
         self.button = ctk.CTkButton(
-            self, text="Отправить", command=self.on_button_click,
+            frame, text="Отправить", command=self.on_button_click,
             font=default_font)
         self.button.configure(
             fg_color="green", hover_color='darkgreen', text_color="white")
-        self.button.pack(pady=(10, 0))
+        self.button.pack(side="left", padx=0)
+
+        # Создаем кнопку "Настройки"
+        self.button1 = ctk.CTkButton(
+            frame, text="Настройки", command=self.on_button_settings,
+            font=default_font)
+        self.button1.configure(
+            fg_color="black", hover_color='darkgreen', text_color="white")
+        self.button1.pack(side="right", padx=0)
 
         # Создаем поле вывода текста
         self.label = tkinter.Text(
@@ -54,8 +70,51 @@ class MyApplication(ctk.CTk):
         # Привязываем прокрутку к текстовому полю
         self.label.config(yscrollcommand=scrollbar.set)
 
+        self.seting = ctk.CTk()
+        self.seting.geometry("300x300")
+        self.seting.title('Настройки')
+        self.seting.withdraw()
+        self.seting.protocol("WM_DELETE_WINDOW", self.seting.withdraw)
+
+        # Переменная для хранения выбранного значения
+        self.selected_option = ctk.StringVar(value=RADIO_VALUE)
+
+        lebel = ctk.CTkLabel(
+            self.seting, text="Выберите промт для бота:", font=default_font)
+        lebel.pack(pady=10)
+
+        radio1 = ctk.CTkRadioButton(
+            self.seting, text="Стандартный",
+            variable=self.selected_option, value="option1",
+            command=self.on_option_selected)
+        radio1.pack(pady=10)
+
+        radio2 = ctk.CTkRadioButton(
+            self.seting, text="Космонавт",
+            variable=self.selected_option, value="option2",
+            command=self.on_option_selected)
+        radio2.pack(pady=10)
+
+        radio3 = ctk.CTkRadioButton(
+            self.seting, text='Python-разработчик',
+            variable=self.selected_option, value="option3",
+            command=self.on_option_selected)
+        radio3.pack(pady=10)
+
+    def on_option_selected(self):
+        """Функция обработки выбора"""
+        value = ''
+        if self.selected_option.get() == 'option2':
+            value = (
+                'Ты космонавт который летит на Марс. Отвечай только на '
+                'русском языке')
+        elif self.selected_option.get() == 'option3':
+            value = 'Ты Python-разработчик. Отвечай только на русском языке'
+        self.restart_app(value)
+
     def on_button_click(self):
         """Нажатие кнопки отправить"""
+        # print(self.selected_option.get())
         self.button.configure(
             fg_color="red", text_color="white", state="disabled")
         now = datetime.now()
@@ -100,6 +159,22 @@ class MyApplication(ctk.CTk):
 
             # Применяем тег для подсветки кода
             self.label.tag_add("code", start_idx, end_idx)
+
+    def on_button_settings(self):
+        """Открытие окна настроек"""
+        self.seting.deiconify()
+        print(ROLE_PROMPT)
+
+    def on_closing(self):
+        """Закрытие приложения"""
+        self.seting.destroy()  # Закрываем окно настроек, если оно открыто
+        self.destroy()
+
+    def restart_app(self, value):
+        """Перезапуск приложения с новым значением QWE"""
+        os.environ["RADIO_VALUE"] = self.selected_option.get()
+        os.environ["ROLE_PROMPT"] = str(value)
+        os.execv(sys.executable, ["python"] + sys.argv)
 
 
 if __name__ == "__main__":
