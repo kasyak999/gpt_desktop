@@ -21,7 +21,7 @@ class MyApplication(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.geometry("1020x670")
-        self.title('Бот GPT')
+        self.title('Gpt бот desktop')
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
         default_font = ("Arial", 16)
 
@@ -101,6 +101,12 @@ class MyApplication(ctk.CTk):
             command=self.on_option_selected)
         radio3.pack(pady=10)
 
+        radio4 = ctk.CTkRadioButton(
+            self.seting, text='Новая роль',
+            variable=self.selected_option, value="option4",
+            command=self.on_option_selected)
+        radio4.pack(pady=10)
+
     def on_option_selected(self):
         """Функция обработки выбора"""
         value = ''
@@ -110,6 +116,8 @@ class MyApplication(ctk.CTk):
                 'русском языке')
         elif self.selected_option.get() == 'option3':
             value = 'Ты Python-разработчик. Отвечай только на русском языке'
+        elif self.selected_option.get() == 'option4':
+            value = ''  # Задать новую роль
         self.restart_app(value)
 
     def on_button_click(self):
@@ -163,7 +171,7 @@ class MyApplication(ctk.CTk):
     def on_button_settings(self):
         """Открытие окна настроек"""
         self.seting.deiconify()
-        print(ROLE_PROMPT)
+        # print(ROLE_PROMPT)
 
     def on_closing(self):
         """Закрытие приложения"""
