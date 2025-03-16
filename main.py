@@ -57,6 +57,7 @@ class MyApplication(ctk.CTk):
         self.label.tag_configure("green", foreground="green")
         self.label.tag_configure("blue", foreground="blue")
         self.label.tag_configure("code", foreground="lightblue")
+        self.label.config(state="disabled")
 
         # Добавляем вертикальную прокрутку
         style = ttk.Style()
@@ -135,6 +136,7 @@ class MyApplication(ctk.CTk):
         self.label.insert("end", input_text + '\n')
         self.label.see("end")
         self.label.insert("end", f'{now}| Ответ: ', "blue")
+        self.label.config(state="disabled")
         self.result = model.generate(
             prompt=context, temp=0.2, streaming=True, max_tokens=500,
             repeat_penalty=1.2)
@@ -143,8 +145,10 @@ class MyApplication(ctk.CTk):
     def _insert_text_gradually(self, delay=10):
         """Метод для постепенного вывода текста с задержкой."""
         try:
+            self.label.config(state="normal")
             char = next(self.result)
             self.label.insert("end", char)
+            self.label.config(state="disabled")
             self.after(delay, self._insert_text_gradually)
         except StopIteration:
             self.highlight_code()
