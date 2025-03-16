@@ -20,6 +20,7 @@ RADIO_VALUE = os.getenv("RADIO_VALUE", "option1")
 class MyApplication(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
         self.geometry("1020x670")
         self.title('Gpt бот desktop')
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -137,7 +138,6 @@ class MyApplication(ctk.CTk):
 
     def on_button_click(self):
         """Нажатие кнопки отправить"""
-        # print(self.selected_option.get())
         self.label_info.configure(text="Печатает ...")
         self.button.configure(
             fg_color="red", text_color="white", state="disabled")
@@ -150,11 +150,14 @@ class MyApplication(ctk.CTk):
         self.label.insert("end", f'{now}| Вопрос: ', 'green')
         self.label.insert("end", input_text + '\n')
         self.label.see("end")
-        self.label.insert("end", f'{now}| Ответ: ', "blue")
         self.label.config(state="disabled")
+        self.update_idletasks()  # принудительное обновление
         self.result = model.generate(
             prompt=context, temp=0.2, streaming=True, max_tokens=500,
             repeat_penalty=1.2)
+        self.label.config(state="normal")
+        self.label.insert("end", f'{now}| Ответ: ', "blue")
+        self.label.config(state="disabled")
         self._insert_text_gradually()
 
     def _insert_text_gradually(self, delay=10):
@@ -205,8 +208,13 @@ class MyApplication(ctk.CTk):
 
     def on_closing(self):
         """Закрытие приложения"""
+        try:
+            model.close()  # Остановим модель, если у нее есть метод close()
+        except AttributeError:
+            pass  # Если метода нет, пропускаем
         self.seting.destroy()  # Закрываем окно настроек, если оно открыто
         self.destroy()
+        sys.exit(0)
 
     def restart_app(self, value):
         """Перезапуск приложения с новым значением QWE"""
