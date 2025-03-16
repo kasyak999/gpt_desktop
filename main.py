@@ -49,6 +49,9 @@ class MyApplication(ctk.CTk):
             fg_color="black", hover_color='darkgreen', text_color="white")
         self.button1.pack(side="right", padx=0)
 
+        self.label_info = ctk.CTkLabel(frame, text="")
+        self.label_info.pack(side="left", padx=10)
+
         # Создаем поле вывода текста
         self.label = tkinter.Text(
             self, font=default_font, bg="#2D2D2D", fg="white",
@@ -124,6 +127,7 @@ class MyApplication(ctk.CTk):
     def on_button_click(self):
         """Нажатие кнопки отправить"""
         # print(self.selected_option.get())
+        self.label_info.configure(text="Печатает ...")
         self.button.configure(
             fg_color="red", text_color="white", state="disabled")
         now = datetime.now()
@@ -154,6 +158,7 @@ class MyApplication(ctk.CTk):
             self.highlight_code()
             self.label.insert("end", '\n')
             self.label.config(state="disabled")
+            self.label_info.configure(text="")
 
             # Когда печать завершена, восстанавливаем цвет кнопки
             self.button.configure(fg_color="green", state="normal")
