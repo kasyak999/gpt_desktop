@@ -141,24 +141,36 @@ class MyApplication(ctk.CTk):
         self.label_info.configure(text="Печатает ...")
         self.button.configure(
             fg_color="red", text_color="white", state="disabled")
-        now = datetime.now()
-        now = now.strftime("%Y-%m-%d %H:%M:%S")
-        context = self.entry.get("1.0", "end-1c")
-        input_text = context.replace("\\n", "\n")
+        context = self.entry.get("1.0", "end-1c").replace("\\n", "\n")
         self.entry.delete("1.0", "end")
-        self.label.config(state="normal")
-        self.label.insert("end", f'{now}| Вопрос: ', 'green')
-        self.label.insert("end", input_text + '\n')
+
+        now = self.get_current_time()
+        self.append_text(f'{now}| Вопрос: ', 'green')
+        self.append_text(context + '\n')
         self.label.see("end")
-        self.label.config(state="disabled")
+  
         self.update_idletasks()  # принудительное обновление
+
         self.result = model.generate(
             prompt=context, temp=0.2, streaming=True, max_tokens=500,
             repeat_penalty=1.2)
-        self.label.config(state="normal")
-        self.label.insert("end", f'{now}| Ответ: ', "blue")
-        self.label.config(state="disabled")
+        now = self.get_current_time()
+        self.append_text(f'{now}| Ответ: ', 'blue')
         self._insert_text_gradually()
+
+    def get_current_time(self):
+        """Возвращает текущее время в формате YYYY-MM-DD HH:MM:SS"""
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    def append_text(self, text, tag=None):
+        """Добавляет текст в окно вывода с опциональной цветовой меткой"""
+        self.label.config(state="normal")
+        if tag:
+            self.label.insert("end", text, tag)
+        else:
+            self.label.insert("end", text)
+        self.label.config(state="disabled")
+        self.label.see("end")
 
     def _insert_text_gradually(self, delay=10):
         """Метод для постепенного вывода текста с задержкой."""
@@ -201,7 +213,6 @@ class MyApplication(ctk.CTk):
         new_size = int(value)
         self.label.configure(font=("Arial", new_size))
         self.entry.configure(font=("Arial", new_size))
-
         self.button.configure(font=("Arial", new_size))
         self.button1.configure(font=("Arial", new_size))
         self.label_info.configure(font=("Arial", new_size))
