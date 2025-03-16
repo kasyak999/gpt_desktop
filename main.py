@@ -23,7 +23,8 @@ class MyApplication(ctk.CTk):
         self.geometry("1020x670")
         self.title('Gpt бот desktop')
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
-        default_font = ("Arial", 16)
+        self.font_size = 16
+        default_font = ("Arial", self.font_size)
 
         # Создаем поле ввода текста
         self.entry = ctk.CTkTextbox(self, height=250, font=default_font)
@@ -49,6 +50,7 @@ class MyApplication(ctk.CTk):
             fg_color="black", hover_color='darkgreen', text_color="white")
         self.button1.pack(side="right", padx=0)
 
+        # Поле статуса
         self.label_info = ctk.CTkLabel(frame, text="")
         self.label_info.pack(side="left", padx=10)
 
@@ -83,9 +85,9 @@ class MyApplication(ctk.CTk):
         # Переменная для хранения выбранного значения
         self.selected_option = ctk.StringVar(value=RADIO_VALUE)
 
-        lebel = ctk.CTkLabel(
+        lebel1 = ctk.CTkLabel(
             self.seting, text="Выберите промт для бота:", font=default_font)
-        lebel.pack(pady=10)
+        lebel1.pack(pady=10)
 
         radio1 = ctk.CTkRadioButton(
             self.seting, text="Стандартный",
@@ -110,6 +112,15 @@ class MyApplication(ctk.CTk):
             variable=self.selected_option, value="option4",
             command=self.on_option_selected)
         radio4.pack(pady=10)
+
+        # Ползунок для изменения размера шрифта
+        lebel1 = ctk.CTkLabel(
+            self.seting, text="Изменить размер шрифта", font=default_font)
+        lebel1.pack(pady=10)
+        self.slider = ctk.CTkSlider(
+            self.seting, from_=10, to=50, command=self.update_font_size)
+        self.slider.set(self.font_size)
+        self.slider.pack(pady=10)
 
     def on_option_selected(self):
         """Функция обработки выбора"""
@@ -181,6 +192,16 @@ class MyApplication(ctk.CTk):
         """Открытие окна настроек"""
         self.seting.deiconify()
         # print(ROLE_PROMPT)
+
+    def update_font_size(self, value):
+        """Обновление размера шрифта"""
+        new_size = int(value)
+        self.label.configure(font=("Arial", new_size))
+        self.entry.configure(font=("Arial", new_size))
+
+        self.button.configure(font=("Arial", new_size))
+        self.button1.configure(font=("Arial", new_size))
+        self.label_info.configure(font=("Arial", new_size))
 
     def on_closing(self):
         """Закрытие приложения"""
