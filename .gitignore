@@ -3,3 +3,5 @@ build
 .mypy_cache
 main.spec
 Models
+dist
+build
