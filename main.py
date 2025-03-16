@@ -1,4 +1,5 @@
 import re
+import os
 import tkinter
 from tkinter import ttk
 from datetime import datetime
@@ -7,8 +8,9 @@ from gpt4all import GPT4All
 
 
 MODEL_NAME = 'Meta-Llama-3-8B-Instruct.Q4_0.gguf'
+MODEL_DIR = f'/home/{os.getlogin()}/gpt_desktop/Models'
 model = GPT4All(
-    model_name=MODEL_NAME, model_path='Models', device='cpu', verbose=False)
+    model_name=MODEL_NAME, model_path=MODEL_DIR, device='cpu', verbose=False)
 ROLE_PROMPT = "Ты Python-разработчик. Отвечай только на русском языке"
 
 

@@ -1,11 +1,6 @@
-Скоро будет описание
-
-Проект пока не до писан
-
-pyinstaller --onefile main.py
 
 
-## Как собрать приложение
+## Как запустить ?
 - Установить виртуальное окружение и установить зависимости
     ```bash
     python -m venv venv
@@ -27,7 +22,7 @@ pyinstaller --onefile main.py
         ```
     - Скопировать
         ```bash
-        cp -r Models dist/main
+        cp -r Models /home/имя_пользователя/gpt_desktop/Models
         ```
 - Готово. Теперь можно запустить.
     ```bash
