@@ -80,11 +80,15 @@ class MyApplication(ctk.CTk):
         self.label.config(yscrollcommand=scrollbar.set)
 
         self.seting = ctk.CTk()
-        self.seting.geometry("320x250")
+        self.seting.geometry("320x270")
         self.seting.title('Настройки')
         self.seting.withdraw()
         self.seting.protocol("WM_DELETE_WINDOW", self.seting.withdraw)
         self.seting.configure(fg_color="#202020")
+
+        # Создаем контейнер с отступами
+        frame1 = ctk.CTkFrame(self.seting)
+        frame1.pack(fill="both", expand=True, padx=10, pady=10)
 
         # Создаем кнопку "Настройки"
         self.button1 = ctk.CTkButton(
@@ -94,58 +98,55 @@ class MyApplication(ctk.CTk):
         self.button1.pack(side="right", padx=0)
 
         lebel1 = ctk.CTkLabel(
-            self.seting, text="Выберите промт для бота:")
-        lebel1.pack(pady=(10, 0))
+            frame1, text="Выберите роль для бота:")
+        lebel1.pack(pady=(5, 0))
 
         # Переменная для хранения выбранного значения
         self.selected_option = ctk.StringVar(value=RADIO_VALUE)
 
         radio1 = ctk.CTkRadioButton(
-            self.seting, text="Стандартный",
+            frame1, text="Стандартный",
             variable=self.selected_option, value="option1",
             command=lambda: fun.on_option_selected(self))
-        radio1.pack(pady=0)
+        radio1.pack(padx=5, anchor='w')
 
         radio2 = ctk.CTkRadioButton(
-            self.seting, text="Космонавт",
+            frame1, text="Космонавт",
             variable=self.selected_option, value="option2",
             command=lambda: fun.on_option_selected(self))
-        radio2.pack(pady=0)
+        radio2.pack(padx=5, anchor='w')
 
         radio3 = ctk.CTkRadioButton(
-            self.seting, text='Python-разработчик',
+            frame1, text='Python-разработчик',
             variable=self.selected_option, value="option3",
             command=lambda: fun.on_option_selected(self))
-        radio3.pack(pady=0)
+        radio3.pack(padx=5, anchor='w')
 
         radio4 = ctk.CTkRadioButton(
-            self.seting, text='Новая роль',
+            frame1, text='Новая роль',
             variable=self.selected_option, value="option4",
             command=lambda: fun.on_option_selected(self))
-        radio4.pack(pady=0)
+        radio4.pack(padx=5, anchor='w')
 
         # Ползунок для изменения размера шрифта
         lebel2 = ctk.CTkLabel(
-            self.seting, text="Изменить размер шрифта")
+            frame1, text="Изменить размер шрифта")
         lebel2.pack(pady=(10, 0))
         self.slider = ctk.CTkSlider(
-            self.seting, from_=10, to=50,
+            frame1, from_=10, to=50,
             command=lambda value: fun.update_font_size(self, value))
         self.slider.set(FONT_SIZE)
         self.slider.pack(pady=(0, 20))
 
         lebel3 = ctk.CTkLabel(
-            self.seting, text="Репозиторий проекта:")
+            frame1, text=GITHUB, text_color='blue')
         lebel3.pack(pady=0)
-        lebel4 = ctk.CTkLabel(
-            self.seting, text=GITHUB, text_color='blue')
-        lebel4.pack(pady=0)
-        lebel4.bind("<Button-1>", lambda event: fun.open_link(event, GITHUB))
+        lebel3.bind("<Button-1>", lambda event: fun.open_link(event, GITHUB))
 
         # устанавливаем цвет текста для блоков
         for radio in [
             self.entry, self.label_info, self.button, self.button1, lebel1,
-            lebel2, lebel3, radio1, radio2, radio3, radio4
+            lebel2, radio1, radio2, radio3, radio4
         ]:
             radio.configure(text_color='white', font=default_font)
 
