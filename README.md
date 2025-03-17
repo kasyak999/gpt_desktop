@@ -39,3 +39,22 @@
     ```bash
     ./dist/main/main 
     ```
+
+## Настройки
+
+```python
+model = GPT4All(
+    model_name=MODEL_NAME, model_path=MODEL_DIR, device='cpu', verbose=False)
+```
+Здесь можно настроить модель.
+- **device** - Процессор (cpu) / Видеркарта (gpu)
+- **model_name** - Модель, список доступных моделей можно посмотреть тут https://docs.gpt4all.io/gpt4all_python/home.html#load-llm
+
+Задать новую роль бота можно в методе **on_option_selected** и добавить в **MyApplication** выбор новой модели
+```python
+radio4 = ctk.CTkRadioButton(
+    self.seting, text='Новая роль',
+    variable=self.selected_option,value="option4",
+    command=self.on_option_selected)
+radio4.pack(pady=10)
+```
