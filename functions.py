@@ -2,6 +2,7 @@ import os
 import sys
 import re
 from datetime import datetime
+import webbrowser
 
 
 def on_focus_in(self, event, placeholder_text):
@@ -133,3 +134,8 @@ def on_closing(self, model):
     self.seting.destroy()  # Закрываем окно настроек, если оно открыто
     self.destroy()
     sys.exit(0)
+
+
+def open_link(event, url):
+    """Функция для открытия ссылки"""
+    webbrowser.open_new(url)  # Вставьте нужную ссылку

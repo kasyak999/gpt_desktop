@@ -13,6 +13,8 @@ model = GPT4All(
 ROLE_PROMPT = os.getenv(
     "ROLE_PROMPT", '')
 RADIO_VALUE = os.getenv("RADIO_VALUE", "option1")
+GITHUB = 'https://github.com/kasyak999/gpt_desktop'
+FONT_SIZE = 17
 
 
 class MyApplication(ctk.CTk):
@@ -21,13 +23,12 @@ class MyApplication(ctk.CTk):
         self.geometry("1020x670")
         self.title('Gpt бот desktop')
         self.protocol("WM_DELETE_WINDOW", lambda: fun.on_closing(self, model))
-        self.font_size = 16
-        default_font = ("Arial", self.font_size)
+        default_font = ("Arial", FONT_SIZE)
         self.configure(fg_color="#202020")
 
         # Создаем поле ввода текста
         self.placeholder_text = "Введите сообщение..."
-        self.entry = ctk.CTkTextbox(self, height=250, font=default_font)
+        self.entry = ctk.CTkTextbox(self, height=250)
         self.entry.configure(fg_color="#2D2D2D")
         self.entry.pack(fill='x', padx=(10, 10), pady=(10, 0))
         self.entry.insert("1.0", self.placeholder_text)
@@ -45,8 +46,8 @@ class MyApplication(ctk.CTk):
 
         # Создаем кнопку "Отправить"
         self.button = ctk.CTkButton(
-            frame, text="Отправить", command=lambda: fun.on_button_click(self, model),
-            font=default_font)
+            frame, text="Отправить",
+            command=lambda: fun.on_button_click(self, model))
         self.button.configure(fg_color="green", hover_color='darkgreen')
         self.button.pack(side="left", padx=0)
 
@@ -79,7 +80,7 @@ class MyApplication(ctk.CTk):
         self.label.config(yscrollcommand=scrollbar.set)
 
         self.seting = ctk.CTk()
-        self.seting.geometry("300x300")
+        self.seting.geometry("320x250")
         self.seting.title('Настройки')
         self.seting.withdraw()
         self.seting.protocol("WM_DELETE_WINDOW", self.seting.withdraw)
@@ -88,14 +89,13 @@ class MyApplication(ctk.CTk):
         # Создаем кнопку "Настройки"
         self.button1 = ctk.CTkButton(
             frame, text="Настройки",
-            command=lambda: fun.on_button_settings(self.seting),
-            font=default_font)
+            command=lambda: fun.on_button_settings(self.seting))
         self.button1.configure(fg_color="black", hover_color='darkgreen')
         self.button1.pack(side="right", padx=0)
 
         lebel1 = ctk.CTkLabel(
-            self.seting, text="Выберите промт для бота:", font=default_font)
-        lebel1.pack(pady=10)
+            self.seting, text="Выберите промт для бота:")
+        lebel1.pack(pady=(10, 0))
 
         # Переменная для хранения выбранного значения
         self.selected_option = ctk.StringVar(value=RADIO_VALUE)
@@ -104,42 +104,50 @@ class MyApplication(ctk.CTk):
             self.seting, text="Стандартный",
             variable=self.selected_option, value="option1",
             command=lambda: fun.on_option_selected(self))
-        radio1.pack(pady=10)
+        radio1.pack(pady=0)
 
         radio2 = ctk.CTkRadioButton(
             self.seting, text="Космонавт",
             variable=self.selected_option, value="option2",
             command=lambda: fun.on_option_selected(self))
-        radio2.pack(pady=10)
+        radio2.pack(pady=0)
 
         radio3 = ctk.CTkRadioButton(
             self.seting, text='Python-разработчик',
             variable=self.selected_option, value="option3",
             command=lambda: fun.on_option_selected(self))
-        radio3.pack(pady=10)
+        radio3.pack(pady=0)
 
         radio4 = ctk.CTkRadioButton(
             self.seting, text='Новая роль',
             variable=self.selected_option, value="option4",
             command=lambda: fun.on_option_selected(self))
-        radio4.pack(pady=10)
+        radio4.pack(pady=0)
 
         # Ползунок для изменения размера шрифта
         lebel2 = ctk.CTkLabel(
-            self.seting, text="Изменить размер шрифта", font=default_font)
-        lebel2.pack(pady=10)
+            self.seting, text="Изменить размер шрифта")
+        lebel2.pack(pady=(10, 0))
         self.slider = ctk.CTkSlider(
             self.seting, from_=10, to=50,
             command=lambda value: fun.update_font_size(self, value))
-        self.slider.set(self.font_size)
-        self.slider.pack(pady=10)
+        self.slider.set(FONT_SIZE)
+        self.slider.pack(pady=(0, 20))
+
+        lebel3 = ctk.CTkLabel(
+            self.seting, text="Репозиторий проекта:")
+        lebel3.pack(pady=0)
+        lebel4 = ctk.CTkLabel(
+            self.seting, text=GITHUB, text_color='blue')
+        lebel4.pack(pady=0)
+        lebel4.bind("<Button-1>", lambda event: fun.open_link(event, GITHUB))
 
         # устанавливаем цвет текста для блоков
         for radio in [
             self.entry, self.label_info, self.button, self.button1, lebel1,
-            lebel2, radio1, radio2, radio3, radio4
+            lebel2, lebel3, radio1, radio2, radio3, radio4
         ]:
-            radio.configure(text_color='white')
+            radio.configure(text_color='white', font=default_font)
 
 
 if __name__ == "__main__":
