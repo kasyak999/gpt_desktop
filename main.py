@@ -20,18 +20,20 @@ RADIO_VALUE = os.getenv("RADIO_VALUE", "option1")
 class MyApplication(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
         self.geometry("1020x670")
         self.title('Gpt бот desktop')
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.font_size = 16
         default_font = ("Arial", self.font_size)
+        self.configure(fg_color="#202020")
 
         # Создаем поле ввода текста
         self.entry = ctk.CTkTextbox(self, height=250, font=default_font)
+        self.entry.configure(fg_color="#2D2D2D")
         self.entry.pack(fill='x', padx=(10, 10), pady=(10, 0))
 
         frame = ctk.CTkFrame(self)  # Контейнер для кнопок
+        frame.configure(fg_color="#2D2D2D")
         frame.pack(pady=10)  # Размещаем контейнер
         frame.pack(fill='x', padx=(10, 10), pady=(10, 0))
 
@@ -39,25 +41,25 @@ class MyApplication(ctk.CTk):
         self.button = ctk.CTkButton(
             frame, text="Отправить", command=self.on_button_click,
             font=default_font)
-        self.button.configure(
-            fg_color="green", hover_color='darkgreen', text_color="white")
+        self.button.configure(fg_color="green", hover_color='darkgreen')
         self.button.pack(side="left", padx=0)
 
         # Создаем кнопку "Настройки"
         self.button1 = ctk.CTkButton(
             frame, text="Настройки", command=self.on_button_settings,
             font=default_font)
-        self.button1.configure(
-            fg_color="black", hover_color='darkgreen', text_color="white")
+        self.button1.configure(fg_color="black", hover_color='darkgreen')
         self.button1.pack(side="right", padx=0)
 
         # Поле статуса
         self.label_info = ctk.CTkLabel(frame, text="")
+        self.label_info.configure(fg_color="#2D2D2D")
         self.label_info.pack(side="left", padx=10)
 
         # Создаем поле вывода текста
         self.label = tkinter.Text(
-            self, font=default_font, bg="#2D2D2D", fg="white",
+            self, font=default_font,
+            bg="#2D2D2D", fg="white",
             highlightthickness=0, borderwidth=0, wrap="word")
         self.label.pack(fill='both', padx=(10, 10), pady=(10, 10), expand=True)
         self.label.tag_configure("green", foreground="green")
@@ -82,6 +84,7 @@ class MyApplication(ctk.CTk):
         self.seting.title('Настройки')
         self.seting.withdraw()
         self.seting.protocol("WM_DELETE_WINDOW", self.seting.withdraw)
+        self.seting.configure(fg_color="#202020")
 
         # Переменная для хранения выбранного значения
         self.selected_option = ctk.StringVar(value=RADIO_VALUE)
@@ -115,13 +118,20 @@ class MyApplication(ctk.CTk):
         radio4.pack(pady=10)
 
         # Ползунок для изменения размера шрифта
-        lebel1 = ctk.CTkLabel(
+        lebel2 = ctk.CTkLabel(
             self.seting, text="Изменить размер шрифта", font=default_font)
-        lebel1.pack(pady=10)
+        lebel2.pack(pady=10)
         self.slider = ctk.CTkSlider(
             self.seting, from_=10, to=50, command=self.update_font_size)
         self.slider.set(self.font_size)
         self.slider.pack(pady=10)
+
+        # устанавливаем цвет текста для блоков
+        for radio in [
+            self.entry, self.label_info, self.button, self.button1, lebel1,
+            lebel2, radio1, radio2, radio3, radio4
+        ]:
+            radio.configure(text_color='white')
 
     def on_option_selected(self):
         """Функция обработки выбора"""
