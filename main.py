@@ -3,7 +3,7 @@ import tkinter
 from tkinter import ttk
 import customtkinter as ctk
 from gpt4all import GPT4All
-import utils as fun
+import functions as fun
 
 
 MODEL_NAME = 'Meta-Llama-3-8B-Instruct.Q4_0.gguf'
