@@ -67,3 +67,69 @@ def highlight_code(label):
 
         # Применяем тег для подсветки кода
         label.tag_add("code", start_idx, end_idx)
+
+
+def on_button_click(self, model):
+    """Нажатие кнопки отправить"""
+    self.label_info.configure(text="Печатает ...")
+    self.button.configure(
+        fg_color="red", text_color="white", state="disabled")
+    context = self.entry.get("1.0", "end-1c").replace("\\n", "\n")
+    self.entry.delete("1.0", "end")
+
+    now = get_current_time()
+    append_text(self.label, f'{now}| Вопрос: ', 'green')
+    append_text(self.label, context + '\n')
+    self.label.see("end")
+
+    self.update_idletasks()  # принудительное обновление
+
+    self.result = model.generate(
+        prompt=context, temp=0.2, streaming=True, max_tokens=500,
+        repeat_penalty=1.2)
+    now = get_current_time()
+    append_text(self.label, f'{now}| Ответ: ', 'blue')
+    insert_text_gradually(self)
+
+
+def insert_text_gradually(self, delay=10):
+    """Метод для постепенного вывода текста с задержкой."""
+    try:
+        self.label.config(state="normal")
+        char = next(self.result)
+        self.label.insert("end", char)
+        self.label.config(state="disabled")
+        self.after(delay, lambda: insert_text_gradually(self))
+    except StopIteration:
+        highlight_code(self.label)
+        self.label.insert("end", '\n')
+        self.label.config(state="disabled")
+        self.label_info.configure(text="")
+
+        # Когда печать завершена, восстанавливаем цвет кнопки
+        self.button.configure(fg_color="green", state="normal")
+
+
+def on_option_selected(self):
+    """Функция обработки выбора"""
+    value = ''
+    if self.selected_option.get() == 'option2':
+        value = (
+            'Ты космонавт который летит на Марс. Отвечай только на '
+            'русском языке')
+    elif self.selected_option.get() == 'option3':
+        value = 'Ты Python-разработчик. Отвечай только на русском языке'
+    elif self.selected_option.get() == 'option4':
+        value = ''  # Задать новую роль
+    restart_app(self.selected_option.get(), value)
+
+
+def on_closing(self, model):
+    """Закрытие приложения"""
+    try:
+        model.close()  # Остановим модель, если у нее есть метод close()
+    except AttributeError:
+        pass
+    self.seting.destroy()  # Закрываем окно настроек, если оно открыто
+    self.destroy()
+    sys.exit(0)
