@@ -3,9 +3,9 @@ import os
 import sys
 import tkinter
 from tkinter import ttk
-from datetime import datetime
 import customtkinter as ctk
 from gpt4all import GPT4All
+import utils as fun
 
 
 MODEL_NAME = 'Meta-Llama-3-8B-Instruct.Q4_0.gguf'
@@ -28,9 +28,17 @@ class MyApplication(ctk.CTk):
         self.configure(fg_color="#202020")
 
         # Создаем поле ввода текста
+        self.placeholder_text = "Введите сообщение..."
         self.entry = ctk.CTkTextbox(self, height=250, font=default_font)
         self.entry.configure(fg_color="#2D2D2D")
         self.entry.pack(fill='x', padx=(10, 10), pady=(10, 0))
+        self.entry.insert("1.0", self.placeholder_text)
+        self.entry.bind(
+            "<FocusIn>", lambda event: fun.on_focus_in(
+                self.entry, event, self.placeholder_text))
+        self.entry.bind(
+            "<FocusOut>", lambda event: fun.on_focus_out(
+                self.entry, event, self.placeholder_text))
 
         frame = ctk.CTkFrame(self)  # Контейнер для кнопок
         frame.configure(fg_color="#2D2D2D")
@@ -43,13 +51,6 @@ class MyApplication(ctk.CTk):
             font=default_font)
         self.button.configure(fg_color="green", hover_color='darkgreen')
         self.button.pack(side="left", padx=0)
-
-        # Создаем кнопку "Настройки"
-        self.button1 = ctk.CTkButton(
-            frame, text="Настройки", command=self.on_button_settings,
-            font=default_font)
-        self.button1.configure(fg_color="black", hover_color='darkgreen')
-        self.button1.pack(side="right", padx=0)
 
         # Поле статуса
         self.label_info = ctk.CTkLabel(frame, text="")
@@ -85,6 +86,14 @@ class MyApplication(ctk.CTk):
         self.seting.withdraw()
         self.seting.protocol("WM_DELETE_WINDOW", self.seting.withdraw)
         self.seting.configure(fg_color="#202020")
+
+        # Создаем кнопку "Настройки"
+        self.button1 = ctk.CTkButton(
+            frame, text="Настройки",
+            command=lambda: fun.on_button_settings(self.seting),
+            font=default_font)
+        self.button1.configure(fg_color="black", hover_color='darkgreen')
+        self.button1.pack(side="right", padx=0)
 
         # Переменная для хранения выбранного значения
         self.selected_option = ctk.StringVar(value=RADIO_VALUE)
@@ -122,7 +131,8 @@ class MyApplication(ctk.CTk):
             self.seting, text="Изменить размер шрифта", font=default_font)
         lebel2.pack(pady=10)
         self.slider = ctk.CTkSlider(
-            self.seting, from_=10, to=50, command=self.update_font_size)
+            self.seting, from_=10, to=50,
+            command=lambda value: fun.update_font_size(self, value))
         self.slider.set(self.font_size)
         self.slider.pack(pady=10)
 
@@ -144,7 +154,7 @@ class MyApplication(ctk.CTk):
             value = 'Ты Python-разработчик. Отвечай только на русском языке'
         elif self.selected_option.get() == 'option4':
             value = ''  # Задать новую роль
-        self.restart_app(value)
+        fun.restart_app(self.selected_option.get(), value)
 
     def on_button_click(self):
         """Нажатие кнопки отправить"""
@@ -154,33 +164,19 @@ class MyApplication(ctk.CTk):
         context = self.entry.get("1.0", "end-1c").replace("\\n", "\n")
         self.entry.delete("1.0", "end")
 
-        now = self.get_current_time()
-        self.append_text(f'{now}| Вопрос: ', 'green')
-        self.append_text(context + '\n')
+        now = fun.get_current_time()
+        fun.append_text(self.label, f'{now}| Вопрос: ', 'green')
+        fun.append_text(self.label, context + '\n')
         self.label.see("end")
-  
+
         self.update_idletasks()  # принудительное обновление
 
         self.result = model.generate(
             prompt=context, temp=0.2, streaming=True, max_tokens=500,
             repeat_penalty=1.2)
-        now = self.get_current_time()
-        self.append_text(f'{now}| Ответ: ', 'blue')
+        now = fun.get_current_time()
+        fun.append_text(self.label, f'{now}| Ответ: ', 'blue')
         self._insert_text_gradually()
-
-    def get_current_time(self):
-        """Возвращает текущее время в формате YYYY-MM-DD HH:MM:SS"""
-        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    def append_text(self, text, tag=None):
-        """Добавляет текст в окно вывода с опциональной цветовой меткой"""
-        self.label.config(state="normal")
-        if tag:
-            self.label.insert("end", text, tag)
-        else:
-            self.label.insert("end", text)
-        self.label.config(state="disabled")
-        self.label.see("end")
 
     def _insert_text_gradually(self, delay=10):
         """Метод для постепенного вывода текста с задержкой."""
@@ -191,7 +187,7 @@ class MyApplication(ctk.CTk):
             self.label.config(state="disabled")
             self.after(delay, self._insert_text_gradually)
         except StopIteration:
-            self.highlight_code()
+            fun.highlight_code(self.label)
             self.label.insert("end", '\n')
             self.label.config(state="disabled")
             self.label_info.configure(text="")
@@ -199,49 +195,15 @@ class MyApplication(ctk.CTk):
             # Когда печать завершена, восстанавливаем цвет кнопки
             self.button.configure(fg_color="green", state="normal")
 
-    def highlight_code(self):
-        """Подсветка кода внутри ```...```"""
-        text = self.label.get("1.0", "end")
-        code_blocks = re.finditer(
-            r"```(?:python)?\s*(.*?)```", text, re.DOTALL)
-
-        for block in code_blocks:
-            start, end = block.span(1)  # Индексы начала и конца кода
-            start_idx = self.label.index(f"1.0 + {start} chars")
-            end_idx = self.label.index(f"1.0 + {end} chars")
-
-            # Применяем тег для подсветки кода
-            self.label.tag_add("code", start_idx, end_idx)
-
-    def on_button_settings(self):
-        """Открытие окна настроек"""
-        self.seting.deiconify()
-        # print(ROLE_PROMPT)
-
-    def update_font_size(self, value):
-        """Обновление размера шрифта"""
-        new_size = int(value)
-        self.label.configure(font=("Arial", new_size))
-        self.entry.configure(font=("Arial", new_size))
-        self.button.configure(font=("Arial", new_size))
-        self.button1.configure(font=("Arial", new_size))
-        self.label_info.configure(font=("Arial", new_size))
-
     def on_closing(self):
         """Закрытие приложения"""
         try:
             model.close()  # Остановим модель, если у нее есть метод close()
         except AttributeError:
-            pass  # Если метода нет, пропускаем
+            pass
         self.seting.destroy()  # Закрываем окно настроек, если оно открыто
         self.destroy()
         sys.exit(0)
-
-    def restart_app(self, value):
-        """Перезапуск приложения с новым значением QWE"""
-        os.environ["RADIO_VALUE"] = self.selected_option.get()
-        os.environ["ROLE_PROMPT"] = str(value)
-        os.execv(sys.executable, ["python"] + sys.argv)
 
 
 if __name__ == "__main__":
