@@ -6,7 +6,9 @@ from gpt4all import GPT4All
 import functions as fun
 
 
-MODEL_NAME = 'Meta-Llama-3-8B-Instruct.Q4_0.gguf'
+MODEL_NAME = 'Meta-Llama-3.1-8B-Instruct-Q5_K_M.gguf'
+# MODEL_NAME = 'gemma-3-4b-it-Q4_K_M.gguf'
+
 MODEL_DIR = f'/home/{os.getlogin()}/gpt_desktop/Models'
 model = GPT4All(
     model_name=MODEL_NAME, model_path=MODEL_DIR, device='cpu', verbose=False)
